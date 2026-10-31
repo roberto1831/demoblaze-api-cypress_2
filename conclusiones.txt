@@ -1,0 +1,61 @@
+-------------------------
+CONCLUSIONES Y HALLAZGOS
+--------------------------
+Pruebas de API - Signup y Login en DemoBlaze (Cypress)
+Autor: Ing.Roberto Fernando Toapanta Valencia
+
+---------------------
+1. RESULTADO GENERAL
+---------------------
+Se probaron los servicios REST de DemoBlaze utilizando Cypress (cy.request), cumpliendo los
+4 escenarios solicitados en esta prueba.
+  RESULTADO
+  - 4 casos ejecutados.
+  - 4 casos exitosos.
+  - 0 fallos.
+
+Se implementó en este proyecto un comando reutilizable (apiRequest) y un hook before para
+preparar los datos de prueba y evitar tener código repetido.
+
+
+
+---------------------------------------------
+3. HALLAZGOS ENCONTRADOS EN LA IMPLEMENTACIÓN
+---------------------------------------------
+
+a) La contraseña viaja en Base64 y no en un texto plano. Por lo que fue codificada mediante la función btoa().
+
+b) La API responde con código HTTP 200 en todos los casos, en un escenario exitoso como en un
+   escenario con errores. No utiliza códigos HTTP 400 (Bad Request) ni 401(Unauthorized).
+   Por esta razón, para poder diferenciar un resultado exitoso de uno erróneo fue necesario validar
+   el contenido del body de la respuesta. Si el body contenía la propiedad "errorMessage", la operación
+   se considera fallida.
+
+   Debido a este comportamiento, se utilizó failOnStatusCode: false y las validaciones se realizaron
+   sobre el contenido de la respuesta.
+
+c) Un Signup exitoso devuelve un body vació, mientras que un login exitoso devuelve Auth_token.
+
+d) Se genera un usuario único por ejecución a traves de Date.now() para evitar conflictos con usuarios
+    que se crearon anteriormente.
+
+-----------------------
+4. DECISIONES TÉCNICAS
+-----------------------
+
+* Implementación del comando personalizado apiRequest para centralizar las llamadas a la API a través del cy.request
+  y evitar la duplicación del código (principio DRY).
+
+* Uso de un Hook before para preparar los datos de prueba una sola vez antes de ejecutarlos.
+
+* Implementación de validaciones sobre el body de la respuesta para verificar el comportamiento real de la API
+ y diferenciar escenarios exitosos de escenarios con error.
+
+--------------
+5. CONCLUSION
+--------------
+Los servicios de registro e inicio de sesión funcionan de acuerdo a lo esperado en los cuatro escenarios.
+
+El principal hallazgo fue comprobar que la prueba de API no debe basarse únicamente en el código HTTP de respuesta
+que devuelve. En este caso, la API responde con código HTTP 200 tanto para operaciones exitosas como erróneas,
+por lo que la validación existente se encuentra en el cuerpo de la respuesta.
